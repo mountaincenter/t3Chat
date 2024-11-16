@@ -1,0 +1,51 @@
+x-common: &common
+  build:
+    args:
+      - NODE_VER=22.11.0
+    context: .
+    dockerfile: Dockerfile
+  tty: true
+  volumes:
+    - .:/home/node/app
+    - ./node_modules:/home/node/app_node_modules
+  environment:
+    - CHOKIDAR_USEPOLLING
+
+services:
+  web:
+    <<: *common
+    ports:
+      - 3000:3000
+    command: npm run dev
+
+  prisma-studio:
+    <<: *common
+    ports:
+      - 5555:5555
+    command: npm run db:studio
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: mydb
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+    depends_on:
+      - postgres
+
+volumes:
+  node_modules:
+  postgres_data:
