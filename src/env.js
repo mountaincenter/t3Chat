@@ -8,16 +8,16 @@ export const env = createEnv({
    */
   server: {
     AUTH_SECRET:
-      process.env.NODE_ENV === "production"
-        ? z.string()
-        : z.string().optional(),
+      process.env.NODE_ENV === "development"
+        ? z.string().optional()
+        : z.string(),
     AUTH_DISCORD_ID: z.string(),
     AUTH_DISCORD_SECRET: z.string(),
     POSTGRES_PRISMA_URL: z.string().url(),
     POSTGRES_URL_NON_POOLING:
-      process.env.NODE_ENV === "production"
-        ? z.string().url()
-        : z.string().url().optional(),
+      process.env.NODE_ENV === "development"
+        ? z.string().url().optional()
+        : z.string().url(),
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
