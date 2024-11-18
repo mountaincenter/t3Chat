@@ -1,9 +1,12 @@
 import "@/styles/globals.css";
 
-import { GeistSans } from "geist/font/sans";
+import { Noto_Sans_JP } from "next/font/google";
+// import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
 
-import { TRPCReactProvider } from "@/trpc/react";
+import SessionProviderWrapper from "@/components/SessionProviderWrapper";
+
+const notoSansJP = Noto_Sans_JP({ weight: "400", subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Create T3 App",
@@ -15,9 +18,9 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${GeistSans.variable}`}>
-      <body>
-        <TRPCReactProvider>{children}</TRPCReactProvider>
+    <html lang="en" suppressHydrationWarning>
+      <body className={notoSansJP.className}>
+        <SessionProviderWrapper>{children}</SessionProviderWrapper>
       </body>
     </html>
   );
