@@ -1,22 +1,40 @@
 "use client";
 
+import { SessionProvider } from "next-auth/react";
 import { ThemeProvider } from "./theme-provider";
 import { TRPCReactProvider } from "@/trpc/react";
+import Header from "@/app/_components/Header.tsx/Header";
+import type { Session } from "next-auth";
 
 import React from "react";
 
-const SessionProviderWrapper = ({
+interface SessionProviderWrapperProps {
+  children: React.ReactNode;
+  session: Session | null;
+}
+
+const SessionProviderWrapper: React.FC<SessionProviderWrapperProps> = ({
   children,
-}: Readonly<{ children: React.ReactNode }>) => {
+  session,
+}) => {
   return (
-    <ThemeProvider
-      attribute="class"
-      defaultTheme="system"
-      enableSystem
-      disableTransitionOnChange
-    >
-      <TRPCReactProvider>{children}</TRPCReactProvider>
-    </ThemeProvider>
+    <SessionProvider session={session}>
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="system"
+        enableSystem
+        disableTransitionOnChange
+      >
+        <TRPCReactProvider>
+          <div className="flex h-screen flex-col overflow-hidden">
+            <Header session={session} />
+            <div className="flex-grow overflow-hidden pt-[52px]">
+              {children}
+            </div>
+          </div>
+        </TRPCReactProvider>
+      </ThemeProvider>
+    </SessionProvider>
   );
 };
 

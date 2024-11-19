@@ -3,6 +3,8 @@ import "@/styles/globals.css";
 import { Noto_Sans_JP } from "next/font/google";
 // import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
+import { auth } from "@/server/auth";
+import { Toaster } from "@/components/ui/toaster";
 
 import SessionProviderWrapper from "@/components/SessionProviderWrapper";
 
@@ -14,13 +16,17 @@ export const metadata: Metadata = {
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const session = await auth();
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={notoSansJP.className}>
-        <SessionProviderWrapper>{children}</SessionProviderWrapper>
+        <SessionProviderWrapper session={session}>
+          {children}
+          <Toaster />
+        </SessionProviderWrapper>
       </body>
     </html>
   );
