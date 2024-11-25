@@ -13,6 +13,7 @@ const UserItem: React.FC<UserItemProps> = ({ user }) => {
       <div className="relative">
         <AvatarComponent entity={user} />
       </div>
+      Ú
       <div className="flex-1">
         <h2 className="flex-sm">{user.name}</h2>
       </div>

@@ -3,7 +3,9 @@
 import { SessionProvider } from "next-auth/react";
 import { ThemeProvider } from "./theme-provider";
 import { TRPCReactProvider } from "@/trpc/react";
-import Header from "@/app/_components/Header.tsx/Header";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/common/AppSidebar";
+import { useSession } from "next-auth/react";
 import type { Session } from "next-auth";
 
 import React from "react";
@@ -26,12 +28,17 @@ const SessionProviderWrapper: React.FC<SessionProviderWrapperProps> = ({
         disableTransitionOnChange
       >
         <TRPCReactProvider>
-          <div className="flex h-screen flex-col overflow-hidden">
-            <Header session={session} />
-            <div className="flex-grow overflow-hidden pt-[52px]">
-              {children}
-            </div>
-          </div>
+          <SidebarProvider>
+            {/* Sidebar */}
+            <AppSidebar />
+
+            {/* Main content area */}
+            {/* Sidebar Trigger */}
+            <SidebarTrigger />
+
+            {/* Centered children */}
+            <div className="w-full items-center justify-center">{children}</div>
+          </SidebarProvider>
         </TRPCReactProvider>
       </ThemeProvider>
     </SessionProvider>

@@ -1,5 +1,4 @@
 import "@/styles/globals.css";
-
 import { Noto_Sans_JP } from "next/font/google";
 // import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
