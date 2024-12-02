@@ -1,6 +1,6 @@
 "use client";
 
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import type { User } from "@prisma/client";
 
 interface AvatarComponentProps {
@@ -13,11 +13,12 @@ const AvatarComponent: React.FC<AvatarComponentProps> = ({
   className,
 }) => {
   const imageUrl = entity.image;
+  const fallbackText = entity.name?.charAt(0).toUpperCase() ?? "?";
 
   return (
-    <Avatar className={`h-8 w-8 ${className}`}>
-      {" "}
+    <Avatar className={` ${className}`}>
       {imageUrl && <AvatarImage src={imageUrl} alt="Entity Avatar" />}
+      <AvatarFallback>{fallbackText}</AvatarFallback>
     </Avatar>
   );
 };

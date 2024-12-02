@@ -12,9 +12,9 @@ import {
 } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
 import Link from "next/link";
-import { LogOut, Settings } from "lucide-react";
+import { LogOut, Settings, EllipsisVertical } from "lucide-react";
 import { useUserMutation } from "@/app/hooks/useUserMutation";
-import AvatarComponent from "./AvatarComponent";
+import AvatarItem from "./AvatarItem";
 
 const LoginAvatar: React.FC = () => {
   const { data: session } = useSession();
@@ -42,9 +42,12 @@ const LoginAvatar: React.FC = () => {
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <div className="relative inline-block">
-            {/* AvatarComponentを使用 */}
-            <AvatarComponent entity={user} />
+          <div>
+            <AvatarItem
+              user={user}
+              subText={user.email}
+              rightIcon={<EllipsisVertical />}
+            />
           </div>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">

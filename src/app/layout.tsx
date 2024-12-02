@@ -2,10 +2,11 @@ import "@/styles/globals.css";
 import { Noto_Sans_JP } from "next/font/google";
 // import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
+import { cookies } from "next/headers";
 import { auth } from "@/server/auth";
 import { Toaster } from "@/components/ui/toaster";
 
-import SessionProviderWrapper from "@/components/SessionProviderWrapper";
+import AppLayout from "@/components/AppLayout";
 
 const notoSansJP = Noto_Sans_JP({ weight: "400", subsets: ["latin"] });
 
@@ -19,13 +20,16 @@ export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const session = await auth();
+  const cookieStore = await cookies();
+  const defaultOpen = cookieStore.get("sidebar:state")?.value === "true";
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={notoSansJP.className}>
-        <SessionProviderWrapper session={session}>
+        <AppLayout defaultOpen={defaultOpen}>
           {children}
           <Toaster />
-        </SessionProviderWrapper>
+        </AppLayout>
       </body>
     </html>
   );
