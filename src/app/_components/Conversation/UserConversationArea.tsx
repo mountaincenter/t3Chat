@@ -10,7 +10,13 @@ const UserConversationArea: React.FC<UserConversationAreaProps> = ({
   conversationId,
   user,
 }) => {
-  return <div>UserConversationArea</div>;
+  return (
+    <div>
+      <div>UserConversationArea</div>
+      <div>{user.name}</div>
+      <div>{conversationId}</div>
+    </div>
+  );
 };
 
 export default UserConversationArea;

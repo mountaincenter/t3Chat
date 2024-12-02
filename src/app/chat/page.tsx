@@ -29,15 +29,6 @@ const Page = () => {
 
   return (
     <>
-      {users && session && (
-        <>
-          <ChatSidebar
-            users={users}
-            onSelectUser={handleSelectUser}
-            session={session}
-          />
-        </>
-      )}
       {selectedUser ? (
         <UserConversationArea
           conversationId={conversationId}
