@@ -6,7 +6,7 @@ import {
   SidebarHeader,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import UserSection from "@/app/_components/Header.tsx/UserSection";
+import UserSection from "@/app/_components/Header/UserSection";
 import UserList from "@/app/_components/Lists/UserList";
 import type { Session } from "next-auth";
 import type { UserWithDetails } from "@/app/types";

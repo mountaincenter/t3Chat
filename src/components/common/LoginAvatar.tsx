@@ -15,9 +15,19 @@ import Link from "next/link";
 import { LogOut, Settings, EllipsisVertical } from "lucide-react";
 import { useUserMutation } from "@/app/hooks/useUserMutation";
 import AvatarItem from "./AvatarItem";
+import type { Session } from "next-auth";
 
-const LoginAvatar: React.FC = () => {
-  const { data: session } = useSession();
+interface LoginAvatarProps {
+  isMobile?: boolean;
+  isHeader?: boolean;
+  session: Session | null;
+}
+
+const LoginAvatar: React.FC<LoginAvatarProps> = ({
+  isMobile = false,
+  isHeader = false,
+  session,
+}) => {
   const { user, isLoading } = useUserMutation();
   const router = useRouter();
 
@@ -47,6 +57,7 @@ const LoginAvatar: React.FC = () => {
               user={user}
               subText={user.email}
               rightIcon={<EllipsisVertical />}
+              isHeader={isHeader}
             />
           </div>
         </DropdownMenuTrigger>

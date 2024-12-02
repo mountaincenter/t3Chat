@@ -14,6 +14,8 @@ interface AvatarListItemProps {
   onClick?: () => void; // クリックイベント
   className?: string; // カスタムクラス
   subTextClassName?: string;
+  isMobile?: boolean;
+  isHeader?: boolean;
 }
 
 const AvatarItem: React.FC<AvatarListItemProps> = ({
@@ -23,7 +25,21 @@ const AvatarItem: React.FC<AvatarListItemProps> = ({
   onClick,
   className = "",
   subTextClassName = "",
+  isMobile = false,
+  isHeader = false,
 }) => {
+  if (isMobile || isHeader) {
+    return (
+      <button
+        className={`flex items-center gap-4 p-2 ${className}`}
+        onClick={onClick}
+        aria-label={`User ${user.name}`}
+      >
+        <AvatarComponent entity={user} />
+      </button>
+    );
+  }
+
   return (
     <button
       className={`flex w-full items-center gap-4 rounded-lg p-2 hover:bg-accent ${className}`}

@@ -4,7 +4,6 @@ import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { useUserConversationMutation } from "@/hooks/useUserConversationMutation";
 import type { UserWithDetails } from "@/app/types";
 import type { Session } from "next-auth";

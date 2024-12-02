@@ -6,7 +6,8 @@ import { cookies } from "next/headers";
 import { auth } from "@/server/auth";
 import { Toaster } from "@/components/ui/toaster";
 
-import AppLayout from "@/components/AppLayout";
+import AppLayout from "@/components/layouts/AppLayout";
+import Header from "./_components/Header/Header";
 
 const notoSansJP = Noto_Sans_JP({ weight: "400", subsets: ["latin"] });
 
@@ -27,6 +28,7 @@ export default async function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={notoSansJP.className}>
         <AppLayout defaultOpen={defaultOpen}>
+          <Header />
           {children}
           <Toaster />
         </AppLayout>

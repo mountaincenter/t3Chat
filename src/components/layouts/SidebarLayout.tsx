@@ -13,11 +13,6 @@ interface SidebarLayoutProps {
   defaultOpen: boolean;
 }
 
-const SidebarTriggerWrapper: React.FC = () => {
-  const { open } = useSidebar();
-  return open ? null : <SidebarTrigger />;
-};
-
 const SidebarLayout: React.FC<SidebarLayoutProps> = ({
   children,
   defaultOpen,
@@ -36,7 +31,6 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
 
           {/* Main content area */}
           {/* Sidebar Trigger */}
-          <SidebarTriggerWrapper />
 
           {/* Centered children */}
           <div className="w-full items-center justify-center">{children}</div>

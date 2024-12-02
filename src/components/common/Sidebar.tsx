@@ -22,8 +22,6 @@ import { useUserMutation } from "@/hooks/useUserMutation";
 import UserList from "@/app/_components/Lists/UserList";
 import { UserWithDetails } from "@/app/types";
 
-import UserItem from "@/app/_components/Lists/UserItem";
-
 const Sidebar: React.FC = () => {
   const { data: session } = useSession();
   const { users, user } = useUserMutation();
@@ -63,7 +61,7 @@ const Sidebar: React.FC = () => {
         </SidebarMenu>
         <div>
           <SidebarMenu className="w-full">
-            {users && (
+            {session && users && (
               <UserList
                 users={users}
                 session={session}
@@ -74,7 +72,7 @@ const Sidebar: React.FC = () => {
         </div>
       </SidebarContent>
       <SidebarFooter className="border-t p-4">
-        <LoginAvatar />
+        <LoginAvatar session={session} />
       </SidebarFooter>
     </UISidebar>
   );
