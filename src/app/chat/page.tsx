@@ -4,7 +4,7 @@ import UserConversationArea from "../_components/Conversation/UserConversationAr
 import { useUserMutation } from "../hooks/useUserMutation";
 import type { UserWithDetails } from "../types";
 import { useSession } from "next-auth/react";
-import { ChatSidebar } from "@/components/common/ChatSidebat";
+import UserList from "../_components/Lists/UserList";
 
 const Page = () => {
   const { data: session } = useSession();
@@ -28,18 +28,31 @@ const Page = () => {
   }
 
   return (
-    <>
-      {selectedUser ? (
-        <UserConversationArea
-          conversationId={conversationId}
-          user={user as UserWithDetails}
-        />
-      ) : (
-        <div>
-          <p>Select a user to start a conversation</p>
-        </div>
-      )}
-    </>
+    <div className="flex h-screen w-full">
+      <div className="w-1/4 border-r py-4">
+        {users && (
+          <UserList
+            users={users}
+            onSelectUser={handleSelectUser}
+            session={session}
+          />
+        )}
+      </div>
+      <div className="w-3/4 p-4">
+        {selectedUser ? (
+          <UserConversationArea
+            conversationId={conversationId}
+            user={user as UserWithDetails} // 型を明示的に指定
+          />
+        ) : (
+          <div className="flex h-full items-center justify-center">
+            <p className="text-muted-foreground">
+              Select a user to start a conversation
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
 

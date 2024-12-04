@@ -1,13 +1,14 @@
 import "@/styles/globals.css";
 import { Noto_Sans_JP } from "next/font/google";
-// import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
 import { cookies } from "next/headers";
 import { auth } from "@/server/auth";
 import { Toaster } from "@/components/ui/toaster";
 
-import AppLayout from "@/components/layouts/AppLayout";
+import SidebarLayout from "./layouts/SidebarLayout";
+import AppProviders from "@/components/providers/AppProviders";
 import Header from "./_components/Header/Header";
+import AppSidebar from "@/app/_components/Sidebar.tsx/AppSidebar";
 
 const notoSansJP = Noto_Sans_JP({ weight: "400", subsets: ["latin"] });
 
@@ -27,11 +28,12 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={notoSansJP.className}>
-        <AppLayout defaultOpen={defaultOpen}>
-          <Header />
-          {children}
-          <Toaster />
-        </AppLayout>
+        <AppProviders>
+          <SidebarLayout defaultOpen={defaultOpen} sidebar={<AppSidebar />}>
+            {children}
+            <Toaster />
+          </SidebarLayout>
+        </AppProviders>
       </body>
     </html>
   );

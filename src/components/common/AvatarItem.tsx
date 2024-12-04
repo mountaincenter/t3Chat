@@ -25,28 +25,16 @@ const AvatarItem: React.FC<AvatarListItemProps> = ({
   onClick,
   className = "",
   subTextClassName = "",
-  isMobile = false,
-  isHeader = false,
+  isMobile,
 }) => {
-  if (isMobile || isHeader) {
-    return (
-      <button
-        className={`flex items-center gap-4 p-2 ${className}`}
-        onClick={onClick}
-        aria-label={`User ${user.name}`}
-      >
-        <AvatarComponent entity={user} />
-      </button>
-    );
+  console.log("AvatarItem isMobile", isMobile);
+  if (!isMobile) {
+    return <AvatarComponent entity={user} />;
   }
 
   return (
-    <button
-      className={`flex w-full items-center gap-4 rounded-lg p-2 hover:bg-accent ${className}`}
-      onClick={onClick}
-      aria-label={`User ${user.name}`}
-    >
-      <AvatarComponent entity={user} />
+    <>
+      <AvatarComponent entity={user} className={className} />
       <div className="flex flex-1 flex-col overflow-hidden text-left">
         <span className="text-sm font-medium">{user.name}</span>
         <span
@@ -55,17 +43,13 @@ const AvatarItem: React.FC<AvatarListItemProps> = ({
           {subText}
         </span>
       </div>
-      {user.unreadCount !== undefined && user.unreadCount > 0 ? (
+      {user.unreadCount !== undefined && user.unreadCount > 0 && (
         <SidebarMenuBadge className="rounded-full bg-green-500">
           {user.unreadCount}
         </SidebarMenuBadge>
-      ) : (
-        <SidebarMenuBadge className="rounded-full bg-green-500">
-          0
-        </SidebarMenuBadge>
       )}
       {rightIcon && <div className="text-muted-foreground">{rightIcon}</div>}
-    </button>
+    </>
   );
 };
 
