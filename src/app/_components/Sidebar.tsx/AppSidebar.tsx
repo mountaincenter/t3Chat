@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import {
   Sidebar,
   SidebarHeader,
@@ -11,19 +11,14 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-  useSidebar,
 } from "@/components/ui/sidebar";
 import { Command } from "lucide-react";
-import { Switch } from "@/components/ui/switch";
 
-import { data } from "./data";
-import NavUser from "../../../components/common/Sidebar/NavUserLayout";
+import { data } from "@/components/common/Sidebar/data";
+import NavUser from "@/components/common/Sidebar/NavUserLayout";
+import SidebarMenuComponent from "@/components/common/Sidebar/SidebarMenuComponent";
 
 const AppSidebar: React.FC = () => {
-  const [activeItem, setActiveItem] = React.useState(data.navMain[0]);
-  const [mails, setMails] = React.useState(data.mails);
-  const { setOpen } = useSidebar();
-
   return (
     <Sidebar collapsible="icon" className="overflow-hidden">
       <Sidebar
@@ -52,21 +47,7 @@ const AppSidebar: React.FC = () => {
             <SidebarGroupContent className="px-1.5 md:px-0">
               <SidebarMenu>
                 {data.navMain.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton
-                      tooltip={{ children: item.title, hidden: false }}
-                      onClick={() => {
-                        setActiveItem(item);
-                        setMails(data.mails.slice(0, 5));
-                        setOpen(true);
-                      }}
-                      isActive={activeItem && activeItem.title === item.title}
-                      className="px-2.5 md:px-2"
-                    >
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
+                  <SidebarMenuComponent key={item.title} item={item} />
                 ))}
               </SidebarMenu>
             </SidebarGroupContent>

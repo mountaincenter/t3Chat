@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Command } from "lucide-react";
 
-import { data } from "../../../app/_components/Sidebar.tsx/data";
+import { data } from "./data";
 
 const SidebarContentComponent = () => {
   const [activeItem, setActiveItem] = React.useState(data.navMain[0]);

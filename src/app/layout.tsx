@@ -2,12 +2,10 @@ import "@/styles/globals.css";
 import { Noto_Sans_JP } from "next/font/google";
 import { type Metadata } from "next";
 import { cookies } from "next/headers";
-import { auth } from "@/server/auth";
 import { Toaster } from "@/components/ui/toaster";
 
 import SidebarLayout from "./layouts/SidebarLayout";
 import AppProviders from "@/components/providers/AppProviders";
-import Header from "./_components/Header/Header";
 import AppSidebar from "@/app/_components/Sidebar.tsx/AppSidebar";
 
 const notoSansJP = Noto_Sans_JP({ weight: "400", subsets: ["latin"] });
@@ -21,7 +19,6 @@ export const metadata: Metadata = {
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const session = await auth();
   const cookieStore = await cookies();
   const defaultOpen = cookieStore.get("sidebar:state")?.value === "true";
 

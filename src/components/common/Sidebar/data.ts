@@ -1,4 +1,15 @@
-import { ArchiveX, File, Inbox, Send, Trash2 } from "lucide-react";
+import {
+  ArchiveX,
+  File,
+  Inbox,
+  Send,
+  Trash2,
+  UserRound,
+  UsersRound,
+  House,
+  MessageCircleMore,
+  Clock,
+} from "lucide-react";
 
 // This is sample data
 export const data = {
@@ -9,33 +20,33 @@ export const data = {
   },
   navMain: [
     {
-      title: "Inbox",
-      url: "#",
-      icon: Inbox,
+      title: "Home",
+      url: "/",
+      icon: House,
       isActive: true,
     },
     {
-      title: "Drafts",
-      url: "#",
-      icon: File,
+      title: "User",
+      url: "/chat",
+      icon: UserRound,
       isActive: false,
     },
     {
-      title: "Sent",
-      url: "#",
-      icon: Send,
+      title: "Message",
+      url: "/chat",
+      icon: MessageCircleMore,
       isActive: false,
     },
     {
-      title: "Junk",
+      title: "Group",
       url: "#",
-      icon: ArchiveX,
+      icon: UsersRound,
       isActive: false,
     },
     {
-      title: "Trash",
-      url: "#",
-      icon: Trash2,
+      title: "Clock",
+      url: "/",
+      icon: Clock,
       isActive: false,
     },
   ],
