@@ -57,20 +57,90 @@ model Session {
 }
 
 model User {
-    id            String    @id @default(cuid())
-    name          String?
-    email         String?   @unique
-    emailVerified DateTime?
-    image         String?
-    accounts      Account[]
-    sessions      Session[]
-    posts         Post[]
+    id              String         @id @default(cuid())
+    name            String?
+    email           String?        @unique
+    emailVerified   DateTime?
+    image           String?
+    accounts        Account[]
+    sessions        Session[]
+    posts           Post[]
+    messages        Message[]      @relation("UserMessages")
+    conversations   Conversation[] @relation("UserConversations")
+    readByUsers     Message[]      @relation("MessageReadUsers")
+    deletedMessages Message[]      @relation("MessageDeletedUsers")
+    readMessages    MessageRead[]
 }
-
 model VerificationToken {
     identifier String
     token      String   @unique
     expires    DateTime
 
     @@unique([identifier, token])
+}
+
+model Message {
+    id            String         @id @default(cuid())
+    type          MessageType    @default(TEXT)
+    content       String?
+    timestamp     DateTime       @default(now())
+    isDeleted     Boolean        @default(false)
+    sender        User           @relation("UserMessages", fields: [senderId], references: [id])
+    senderId      String
+    conversation  Conversation?  @relation(fields: [conversationId], references: [id])
+    conversationId String?
+    readBy        User[]         @relation("MessageReadUsers")
+    deletedFor    User[]         @relation("MessageDeletedUsers")
+    readRecords   MessageRead[]
+    files         File[]         @relation("MessageFiles")
+
+    @@index([conversationId, timestamp])
+}
+
+model MessageRead {
+    id        String   @id @default(cuid())
+    userId    String
+    messageId String
+    readAt    DateTime @default(now())
+
+    user      User     @relation(fields: [userId], references: [id])
+    message   Message  @relation(fields: [messageId], references: [id])
+
+    @@unique([userId, messageId])
+}
+
+model Conversation {
+    id            String   @id @default(cuid())
+    name          String?
+    isGroup       Boolean  @default(false)
+    participants  User[]   @relation("UserConversations")
+    messages      Message[]
+    groupId       String?
+    createdAt     DateTime @default(now())
+    updatedAt     DateTime @updatedAt
+}
+
+model File {
+    id       String    @id @default(cuid())
+    url      String    // ファイルの保存場所
+    fileType FileType  // ファイルタイプ
+    message  Message   @relation("MessageFiles", fields: [messageId], references: [id]) // 逆のリレーションを定義
+    messageId String
+}
+
+
+enum MessageType {
+    TEXT
+    IMAGE
+    LINK
+    NOTIFICATION
+}
+
+
+enum FileType {
+    IMAGE
+    DOCUMENT
+    PDF
+    VIDEO
+    AUDIO
 }
