@@ -6,7 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 
 import SidebarLayout from "./layouts/SidebarLayout";
 import AppProviders from "@/components/providers/AppProviders";
-import AppSidebar from "@/app/_components/Sidebar.tsx/AppSidebar";
+import AppSidebar from "@/app/_components/Sidebar/AppSidebar";
 
 const notoSansJP = Noto_Sans_JP({ weight: "400", subsets: ["latin"] });
 

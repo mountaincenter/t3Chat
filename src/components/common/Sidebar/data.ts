@@ -1,14 +1,10 @@
 import {
-  ArchiveX,
-  File,
-  Inbox,
-  Send,
-  Trash2,
   UserRound,
   UsersRound,
   House,
   MessageCircleMore,
   Clock,
+  Files,
 } from "lucide-react";
 
 // This is sample data
@@ -26,8 +22,8 @@ export const data = {
       isActive: true,
     },
     {
-      title: "User",
-      url: "/chat",
+      title: "Users",
+      url: "/users",
       icon: UserRound,
       isActive: false,
     },
@@ -47,6 +43,12 @@ export const data = {
       title: "Clock",
       url: "/",
       icon: Clock,
+      isActive: false,
+    },
+    {
+      title: "Files",
+      url: "/files",
+      icon: Files,
       isActive: false,
     },
   ],

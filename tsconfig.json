@@ -37,7 +37,8 @@
     "**/*.cjs",
     "**/*.js",
     ".next/types/**/*.ts",
-    "src/app/_components/Header"
+    "src/app/_components/Header",
+    "src/app/_components/Sidebar"
   ],
   "exclude": ["node_modules"]
 }

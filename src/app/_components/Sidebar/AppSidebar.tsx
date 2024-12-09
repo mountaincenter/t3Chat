@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import {
   Sidebar,
   SidebarHeader,
+  SidebarInput,
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
@@ -17,10 +18,18 @@ import { Command } from "lucide-react";
 import { data } from "@/components/common/Sidebar/data";
 import NavUser from "@/components/common/Sidebar/NavUserLayout";
 import SidebarMenuComponent from "@/components/common/Sidebar/SidebarMenuComponent";
+import SecondSidebar from "@/components/common/SecondSidebar/SecondSidebar";
 
 const AppSidebar: React.FC = () => {
+  const [activeItem, setActiveItem] = useState(data.navMain[0]);
+  const [mails, setMails] = useState(data.mails);
+  const [isOpen, setOpen] = useState(false);
+
   return (
-    <Sidebar collapsible="icon" className="overflow-hidden">
+    <Sidebar
+      collapsible="icon"
+      className="overflow-hidden [&>[data-sidebar=sidebar]]:flex-row"
+    >
       <Sidebar
         collapsible="none"
         className="!w-[calc(var(--sidebar-width-icon)_+_1px)] border-r"
@@ -47,7 +56,14 @@ const AppSidebar: React.FC = () => {
             <SidebarGroupContent className="px-1.5 md:px-0">
               <SidebarMenu>
                 {data.navMain.map((item) => (
-                  <SidebarMenuComponent key={item.title} item={item} />
+                  <SidebarMenuComponent
+                    key={item.title}
+                    item={item}
+                    activeItem={activeItem}
+                    setActiveItem={setActiveItem}
+                    setMails={setMails}
+                    setOpen={setOpen}
+                  />
                 ))}
               </SidebarMenu>
             </SidebarGroupContent>
@@ -57,6 +73,7 @@ const AppSidebar: React.FC = () => {
           <NavUser />
         </SidebarFooter>
       </Sidebar>
+      <SecondSidebar mails={mails} activeItem={activeItem} />
     </Sidebar>
   );
 };
