@@ -4,7 +4,6 @@ import UserConversationArea from "../_components/Conversation/UserConversationAr
 import { useUserMutation } from "../hooks/useUserMutation";
 import type { UserWithDetails } from "../types";
 import { useSession } from "next-auth/react";
-import UserList from "../_components/Lists/UserList";
 
 const Page = () => {
   const { data: session } = useSession();
@@ -29,15 +28,6 @@ const Page = () => {
 
   return (
     <div className="flex h-screen w-full">
-      <div className="w-1/4 border-r py-4">
-        {users && (
-          <UserList
-            users={users}
-            onSelectUser={handleSelectUser}
-            session={session}
-          />
-        )}
-      </div>
       <div className="w-3/4 p-4">
         {selectedUser ? (
           <UserConversationArea

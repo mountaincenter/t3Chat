@@ -13,7 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 
-import { useUserMutation } from "@/hooks/useUserMutation";
+import { useUserMutation } from "@/app/hooks/useUserMutation";
 
 // 表示用のパス名に変換する関数
 const displayPathname = (pathname: string): string => {
@@ -21,7 +21,7 @@ const displayPathname = (pathname: string): string => {
     "/users": "Users",
   };
 
-  return mapping[pathname] || pathname;
+  return mapping[pathname] ?? pathname;
 };
 
 // const users = [
@@ -81,7 +81,7 @@ const UsersSecondSidebar: React.FC<UsersSecondSidebarProps> = ({
                       <AvatarImage src={user.image} alt={user.name} />
                     )}
                     <AvatarFallback>
-                      {user.name && user.name.slice(0, 2).toUpperCase()}
+                      {user.name?.slice(0, 2).toUpperCase() ?? "??"}
                     </AvatarFallback>
                   </Avatar>
 

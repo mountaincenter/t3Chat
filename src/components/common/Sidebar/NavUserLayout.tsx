@@ -6,7 +6,6 @@ import {
   Bell,
   ChevronsUpDown,
   CreditCard,
-  EllipsisVertical,
   LogOut,
   Sparkles,
 } from "lucide-react";
@@ -28,13 +27,9 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-import { useUserMutation } from "@/hooks/useUserMutation";
+import { useUserMutation } from "@/app/hooks/useUserMutation";
 
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-
-import { DialogContent, DialogTitle, Dialog } from "@/components/ui/dialog";
-
-import AvatarItem from "../AvatarItem";
 
 const NavUser = () => {
   const { isMobile } = useSidebar();
