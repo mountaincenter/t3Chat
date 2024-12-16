@@ -11,9 +11,9 @@ export const userRouter = createTRPCRouter({
     return user;
   }),
 
-  // 自分以外のユーザーリストを取得するクエリ
-  listUserExcludingSelf: protectedProcedure.query(async ({ ctx }) => {
-    const users = await userHandler.listUserExcludingSelf(ctx.session.user.id);
+  // 自分を含む全ユーザーリストを取得するクエリ
+  listAllUsers: protectedProcedure.query(async () => {
+    const users = await userHandler.listAllUsers();
     return users;
   }),
 });

@@ -1,5 +1,5 @@
-import type { User } from "@prisma/client";
-import { LucideProps } from "lucide-react";
+import type { User, FileType, File, Message } from "@prisma/client";
+import type { LucideProps } from "lucide-react";
 
 // NextAuthのセッション型
 export interface SessionUser {
@@ -19,11 +19,12 @@ interface Conversation {
   id: string;
   name: string | null;
 }
-
-export interface UserWithDetails extends User {
+// ユーザー詳細型（メール関連を除外）
+export type UserWithDetails = Partial<Omit<User, "email" | "emailVerified">> & {
+  id: string;
   conversations?: Conversation[]; // conversationsをオプショナルにする
   unreadCount?: number;
-}
+};
 
 // Sidebarで使用する型
 export interface Item {
@@ -42,4 +43,22 @@ export interface Mail {
   subject: string;
   date: string;
   teaser: string;
+}
+
+// メッセージ型の拡張
+
+export interface OptimisticMessage extends Omit<Message, "id" | "timestamp"> {
+  id: string;
+  timestamp: string;
+  sending?: boolean;
+  files?: File[];
+}
+
+export interface CreateMessageInput {
+  content: string;
+  senderId: string;
+  files?: {
+    url: string;
+    fileType: FileType;
+  }[];
 }

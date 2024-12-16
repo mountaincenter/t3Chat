@@ -20,7 +20,7 @@ export const useUserMutation = () => {
     data: users,
     isLoading: isUsersLoading,
     refetch: refetchUsers,
-  } = api.user.listUserExcludingSelf.useQuery(undefined, {
+  } = api.user.listAllUsers.useQuery(undefined, {
     enabled: !!session?.user?.id,
   });
 

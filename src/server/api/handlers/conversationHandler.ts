@@ -27,16 +27,14 @@ export const conversationHandler = {
       return await prisma.conversation.findMany({
         where: {
           participants: {
-            some: {
-              id: userId,
-            },
+            some: { id: userId },
           },
         },
         include: { participants: true, messages: true },
       });
     } catch (error) {
       console.error(
-        `[conversationHandler] - getConvesationByUser Error (UserId: ${userId}):`,
+        `[conversationHandler] - getConversationByUser Error (UserId: ${userId}):`,
         error,
       );
       throw new Error("Could not fetch user's conversations");
@@ -53,15 +51,13 @@ export const conversationHandler = {
       }
       const conversations = await prisma.conversation.findMany({
         where: {
-          participants: {
-            every: {
-              id: { in: participantIds },
-            },
-          },
+          AND: [
+            { participants: { some: { id: participantIds[0] } } },
+            { participants: { every: { id: { in: participantIds } } } },
+          ],
         },
         include: { participants: true, messages: true },
       });
-      // ロジック修正: 一致する参加者の数を確認
       return (
         conversations.find(
           (conversation) =>
@@ -104,16 +100,13 @@ export const conversationHandler = {
       });
     } catch (error) {
       console.error(
-        `[conversationHandler] - createConversation Error (Participants: ${participantIds.join(
-          ", ",
-        )}):`,
+        `[conversationHandler] - createConversation Error (Participants: ${participantIds.join(", ")}):`,
         error,
       );
       throw new Error("Could not create conversation");
     }
   },
 
-  // 会話を更新
   updateConversation: async (
     id: string,
     updates: { name?: string; participantIds?: string[] },
@@ -145,7 +138,6 @@ export const conversationHandler = {
     }
   },
 
-  // 会話を削除
   deleteConversation: async (id: string): Promise<Conversation> => {
     try {
       return await prisma.conversation.delete({
