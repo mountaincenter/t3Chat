@@ -24,7 +24,7 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
       }
     >
       {sidebar}
-      <SidebarInsetComponent children={children} />
+      <SidebarInsetComponent>{children}</SidebarInsetComponent>
     </SidebarProvider>
   );
 };

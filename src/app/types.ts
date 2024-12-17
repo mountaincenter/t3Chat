@@ -1,7 +1,16 @@
-import type { User, FileType, File, Message } from "@prisma/client";
+import type {
+  User,
+  File,
+  Message,
+  FileType,
+  Conversation,
+} from "@prisma/client";
 import type { LucideProps } from "lucide-react";
+// =============================
+// ユーザー関連の型
+// =============================
 
-// NextAuthのセッション型
+// NextAuth セッション型
 export interface SessionUser {
   name?: string | null;
   email?: string | null;
@@ -14,19 +23,61 @@ export interface Session {
   expires: string; // セッションの有効期限
 }
 
-// ユーザー詳細型
-interface Conversation {
-  id: string;
-  name: string | null;
-}
-// ユーザー詳細型（メール関連を除外）
-export type UserWithDetails = Partial<Omit<User, "email" | "emailVerified">> & {
-  id: string;
-  conversations?: Conversation[]; // conversationsをオプショナルにする
+// ユーザー詳細型（メール除外）
+export type UserWithDetails = Omit<User, "email" | "emailVerified"> & {
+  conversations?: Partial<Conversation>[];
   unreadCount?: number;
 };
 
-// Sidebarで使用する型
+// =============================
+// メッセージ関連の型
+// =============================
+
+// 楽観的なメッセージ型
+export interface OptimisticMessage extends Omit<Message, "id" | "timestamp"> {
+  id: string; // 楽観的なメッセージID
+  timestamp: string; // クライアント側のタイムスタンプ
+  sending?: boolean; // 送信中フラグ
+  files?: File[]; // 添付ファイル
+}
+
+// メッセージ作成用の入力型
+export interface CreateMessageInput {
+  content: string;
+  senderId: string;
+  files?: {
+    url: string;
+    fileType: FileType;
+  }[];
+}
+
+// Pusher の新しいメッセージイベント型
+export interface NewMessageEvent {
+  id: string;
+  content: string;
+  senderId: string;
+  conversationId: string;
+  timestamp: string;
+  files?: {
+    url: string;
+    fileType: FileType;
+  }[];
+}
+
+// =============================
+// 会話関連の型
+// =============================
+
+// 会話型（名前をオプション化）
+export interface ConversationWithParticipants extends Conversation {
+  participants: UserWithDetails[];
+}
+
+// =============================
+// Sidebar や UI 用の型
+// =============================
+
+// Sidebar に表示するアイテム型
 export interface Item {
   title: string;
   url: string;
@@ -43,22 +94,4 @@ export interface Mail {
   subject: string;
   date: string;
   teaser: string;
-}
-
-// メッセージ型の拡張
-
-export interface OptimisticMessage extends Omit<Message, "id" | "timestamp"> {
-  id: string;
-  timestamp: string;
-  sending?: boolean;
-  files?: File[];
-}
-
-export interface CreateMessageInput {
-  content: string;
-  senderId: string;
-  files?: {
-    url: string;
-    fileType: FileType;
-  }[];
 }

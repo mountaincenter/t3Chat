@@ -1,5 +1,5 @@
 import { PrismaClient, type FileType } from "@prisma/client";
-import { triggerEvent } from "@/server/services/pusher";
+import { triggerEvent } from "@/server/service/pusher";
 
 const prisma = new PrismaClient();
 
@@ -44,6 +44,33 @@ export const messageHandler = {
       message: newMessage,
     });
     return newMessage;
+  },
+
+  async updateMessage(messageId: string, content: string) {
+    const updatedMessage = await prisma.message.update({
+      where: { id: messageId },
+      data: { content },
+    });
+
+    await triggerEvent(
+      `conversation-${updatedMessage.conversationId}`,
+      "message-updated",
+      { messageId, content },
+    );
+    return updatedMessage;
+  },
+
+  async deleteMessage(messageId: string) {
+    const deletedMessage = await prisma.message.delete({
+      where: { id: messageId },
+    });
+
+    await triggerEvent(
+      `conversation-${deletedMessage.conversationId}`,
+      "message-deleted",
+      { messageId },
+    );
+    return deletedMessage;
   },
 
   async markMessageAsRead(messageId: string, userId: string) {

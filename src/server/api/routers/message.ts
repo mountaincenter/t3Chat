@@ -29,6 +29,16 @@ export const messageRouter = createTRPCRouter({
       });
     }),
 
+  update: protectedProcedure
+    .input(z.object({ messageId: z.string(), content: z.string() }))
+    .mutation(async ({ input }) => {
+      return await messageHandler.updateMessage(input.messageId, input.content);
+    }),
+
+  delete: protectedProcedure.input(z.string()).mutation(async ({ input }) => {
+    return await messageHandler.deleteMessage(input);
+  }),
+
   markAsRead: protectedProcedure
     .input(z.object({ messageId: z.string(), conversationId: z.string() }))
     .mutation(({ ctx, input }) => {

@@ -2,8 +2,14 @@
 
 import { api } from "@/trpc/react";
 import { useSession } from "next-auth/react";
+import { useEffect } from "react";
 import { useOptimistic } from "react";
-import type { OptimisticMessage, CreateMessageInput } from "@/app/types";
+import Pusher from "pusher-js";
+import type {
+  OptimisticMessage,
+  CreateMessageInput,
+  NewMessageEvent,
+} from "@/app/types";
 
 export const useMessageMutation = (conversationId: string) => {
   const { status } = useSession();
@@ -12,36 +18,55 @@ export const useMessageMutation = (conversationId: string) => {
   const [optimisticMessages, addOptimisticMessage] = useOptimistic<
     OptimisticMessage[],
     OptimisticMessage
-  >([], (current, newMessage) => [...current, newMessage]);
+  >([], (prev, newMessage) => [...prev, newMessage]);
+
+  // Pusher 初期化
+  useEffect(() => {
+    if (status !== "authenticated" || !conversationId) return;
+
+    const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY!, {
+      cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER!,
+    });
+
+    const channel = pusher.subscribe(`conversation-${conversationId}`);
+
+    // 新しいメッセージイベントを処理
+    channel.bind("new-message", (newMessage: NewMessageEvent) => {
+      addOptimisticMessage((prev) => [...prev, newMessage]);
+    });
+
+    return () => {
+      pusher.unsubscribe(`conversation-${conversationId}`);
+    };
+  }, [conversationId, status]);
 
   const createMessageMutation = api.message.create.useMutation({
     onMutate: async (newMessage: CreateMessageInput) => {
-      // 楽観的なメッセージの追加
       const optimisticMessage: OptimisticMessage = {
-        id: `optimistic-${Date.now()}`, // 一時的なID
+        id: `optimistic-${Date.now()}`,
         timestamp: new Date().toISOString(),
         sending: true,
-        type: "TEXT", // デフォルトの型を追加
-        isDeleted: false, // 初期値を設定
+        type: "TEXT",
+        isDeleted: false,
         senderId: newMessage.senderId,
-        conversationId, // 必須フィールドの追加
+        conversationId,
         content: newMessage.content ?? "",
         files: newMessage.files ?? [],
       };
 
-      addOptimisticMessage(optimisticMessage); // 楽観的にメッセージを追加
+      addOptimisticMessage(optimisticMessage);
       return { optimisticMessage };
     },
+
     onSuccess: (newMessage, variables, context) => {
-      // サーバー応答後、楽観的なメッセージを置き換え
       addOptimisticMessage((prev) =>
         prev.map((msg) =>
           msg.id === context?.optimisticMessage.id ? newMessage : msg,
         ),
       );
     },
+
     onError: (error, variables, context) => {
-      // エラー時は楽観的なメッセージを削除
       addOptimisticMessage((prev) =>
         prev.filter((msg) => msg.id !== context?.optimisticMessage.id),
       );
@@ -52,7 +77,7 @@ export const useMessageMutation = (conversationId: string) => {
   const deleteMessageMutation = api.message.delete.useMutation();
   const markAsReadMutation = api.message.markAsRead.useMutation();
 
-  const sendMessage = async (data: CreateMessageInput) => {
+  const sendMessage = (data: CreateMessageInput) => {
     createMessageMutation.mutate({
       content: data.content,
       conversationId,
@@ -68,16 +93,16 @@ export const useMessageMutation = (conversationId: string) => {
     deleteMessageMutation.mutate(id);
   };
 
-  const markMessageAsRead = async (messageId: string) => {
+  const markMessageAsRead = (messageId: string) => {
     markAsReadMutation.mutate({ messageId, conversationId });
   };
 
   return {
-    messages: optimisticMessages, // 楽観的なメッセージリストを使用
+    messages: optimisticMessages,
     sendMessage,
     updateMessage,
     deleteMessage,
     markMessageAsRead,
-    isMessagesLoading: createMessageMutation.isLoading,
+    isMessagesLoading: createMessageMutation.status === "idle",
   };
 };
