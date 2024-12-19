@@ -14,7 +14,7 @@ interface Message {
   content: string;
   senderId: string;
   timestamp: string;
-  imageUrl?: string;
+  imageUrl?: string | string[] | null;
 }
 
 const Page = () => {

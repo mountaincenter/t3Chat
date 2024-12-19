@@ -9,3 +9,12 @@
 | `pusherService.ts`    | Pusherインスタンス管理とイベント通知 |
 | `messageHandler.ts`   | DB操作とPusherトリガー呼び出し       |
 | `message.ts` (Router) | APIルーター定義とデータ検証          |
+
+- [ ] 複数画像の表示
+- [ ] クリックでDialog表示
+- [ ] Carouselの表示
+- [ ] 時間表記の修正(同時刻のものは最新のものだけ)
+- [ ] 日付をアイランド型に修正
+- [ ] pdfを扱えるようにする
+- [ ] movieを扱えるようにする
+- [ ] lineのように一定期間経過したらサムネイルだけにする
