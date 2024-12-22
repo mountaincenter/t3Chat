@@ -17,8 +17,8 @@ export function ThumbnailCarousel({
   setSelectedIndex,
 }: ThumbnailCarouselProps) {
   return (
-    <Carousel className="mx-auto w-full max-w-3xl">
-      <CarouselContent className="-ml-1">
+    <Carousel opts={{ align: "center" }} className="mx-auto w-full max-w-3xl">
+      <CarouselContent className="-ml-1 flex justify-center gap-2">
         {images.map((src, index) => (
           <CarouselItem key={index} className="basis-1/5 pl-1">
             <div

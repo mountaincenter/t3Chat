@@ -8,15 +8,15 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import type { UserWithDetails } from "../types";
-
 import { ThumbnailCarousel } from "./ThumbnailCarousel";
 import { MainCarousel } from "./MainCarousel";
+import type { File } from "@prisma/client";
 
 interface ConversationMessageProps {
   content: string;
   senderId: string;
   selectedUser: UserWithDetails;
-  imageUrl?: string | string[] | null;
+  files?: File[]; // 修正：imageUrl の代わりに files
   timestamp: Date;
   isOwnMessage: boolean;
   isRead?: boolean;
@@ -25,16 +25,12 @@ interface ConversationMessageProps {
 const ConversationMessage = ({
   content,
   selectedUser,
-  imageUrl,
+  files,
   timestamp,
   isOwnMessage,
   isRead = true,
 }: ConversationMessageProps) => {
-  const resolvedImages = Array.isArray(imageUrl)
-    ? imageUrl
-    : imageUrl
-      ? [imageUrl]
-      : [];
+  const resolvedImages = files?.map((file) => file.url) || []; // ファイルのURLを抽出
 
   const [selectedImageIndex, setSelectedImageIndex] = useState<number>(0);
 

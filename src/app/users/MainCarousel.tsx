@@ -6,12 +6,12 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
 
 interface MainCarouselProps {
   images: string[];
   selectedIndex: number;
-  setSelectedIndex: (index: number) => void;
+  setSelectedIndex: React.Dispatch<React.SetStateAction<number>>; // 型を明確に指定
 }
 
 export function MainCarousel({
@@ -19,33 +19,52 @@ export function MainCarousel({
   selectedIndex,
   setSelectedIndex,
 }: MainCarouselProps) {
-  const [api, setApi] = useState<any>();
+  const carouselRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (!api) return;
-    api.scrollTo(selectedIndex);
-  }, [api, selectedIndex]);
+    if (!carouselRef.current) return;
+
+    const carousel = carouselRef.current;
+    const items = carousel.querySelectorAll("[data-carousel-item]");
+
+    if (items[selectedIndex]) {
+      (items[selectedIndex] as HTMLElement).scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+        inline: "start",
+      });
+    }
+  }, [selectedIndex]);
 
   const handleNext = () => {
-    setSelectedIndex((selectedIndex + 1) % images.length);
+    setSelectedIndex((prevIndex) => (prevIndex + 1) % images.length);
   };
 
   const handlePrevious = () => {
-    setSelectedIndex((selectedIndex - 1 + images.length) % images.length);
+    setSelectedIndex(
+      (prevIndex) => (prevIndex - 1 + images.length) % images.length,
+    );
   };
 
   return (
-    <Carousel setApi={setApi} className="mx-auto w-full max-w-3xl">
+    <Carousel
+      opts={{
+        align: "start",
+        loop: true, // Enable looping
+      }}
+      className="relative mx-auto w-full max-w-3xl"
+      ref={carouselRef}
+    >
       <CarouselContent>
         {images.map((src, index) => (
-          <CarouselItem key={index}>
-            <div className="flex aspect-video items-center justify-center p-6">
+          <CarouselItem key={index} data-carousel-item>
+            <div className="flex items-center justify-center p-6">
               <Image
                 src={src}
                 alt={`Image ${index + 1}`}
                 width={800}
                 height={600}
-                className="max-h-full max-w-full object-contain"
+                className="max-h-full max-w-full rounded-lg object-contain"
               />
             </div>
           </CarouselItem>

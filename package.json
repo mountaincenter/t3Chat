@@ -19,7 +19,11 @@
     "lint:fix": "next lint --fix",
     "preview": "next build && next start",
     "start": "next start",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "ts": "npx node --loader ts-node/esm"
+  },
+  "ts-not": {
+    "esm": true
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.7.2",
@@ -47,6 +51,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
+    "embla-carousel": "^8.5.1",
     "embla-carousel-react": "^8.5.1",
     "geist": "^1.3.0",
     "lucide-react": "^0.460.0",
@@ -67,7 +72,7 @@
   },
   "devDependencies": {
     "@types/eslint": "^8.56.10",
-    "@types/node": "^20.14.10",
+    "@types/node": "^20.17.10",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@typescript-eslint/eslint-plugin": "^8.1.0",
@@ -79,6 +84,7 @@
     "prettier-plugin-tailwindcss": "^0.6.5",
     "prisma": "^5.14.0",
     "tailwindcss": "^3.4.3",
+    "ts-node": "^10.9.2",
     "typescript": "^5.5.3"
   },
   "ct3aMetadata": {

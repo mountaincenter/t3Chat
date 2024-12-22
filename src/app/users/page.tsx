@@ -8,25 +8,17 @@ import ConversationFooter from "./ConversationFooter";
 import ConversationMessage from "./ConversationMessage";
 import { getRealtimeMessages } from "./data";
 import { useChatStore } from "@/store/useChatStore";
-
-interface Message {
-  id: string;
-  content: string;
-  senderId: string;
-  timestamp: string;
-  imageUrl?: string | string[] | null;
-}
+import { formatDate } from "@/lib/utils"; // フォーマット関数をインポート
+import type { Message } from "./data";
 
 const Page = () => {
   const { user, users } = useUserMutation();
   const { selectedUser } = useChatStore();
 
-  // メッセージの状態管理
   const [newMessage, setNewMessage] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
 
-  // 初期メッセージのロード
   useEffect(() => {
     if (user && selectedUser) {
       const initialMessages = getRealtimeMessages(user.id, selectedUser.id);
@@ -36,6 +28,37 @@ const Page = () => {
 
   if (!user || !users) return;
 
+  // 日付区切りを追加してメッセージをレンダリング
+  const renderMessagesWithDateSeparators = () => {
+    let lastDate: string | null = null;
+
+    return messages.map((message, index) => {
+      const messageDate = new Date(message.timestamp);
+      const formattedDate = formatDate(messageDate);
+
+      const isNewDate = formattedDate !== lastDate;
+      lastDate = formattedDate;
+
+      return (
+        <div key={message.id}>
+          {isNewDate && (
+            <div className="my-4 text-center text-sm font-semibold text-gray-500">
+              {formattedDate}
+            </div>
+          )}
+          <ConversationMessage
+            content={message.content}
+            senderId={message.senderId}
+            files={message.files}
+            timestamp={messageDate}
+            isOwnMessage={message.senderId === user.id}
+            selectedUser={selectedUser!}
+          />
+        </div>
+      );
+    });
+  };
+
   // メッセージ送信処理
   const handleSendMessage = () => {
     if (newMessage.trim() || image) {
@@ -44,11 +67,13 @@ const Page = () => {
         content: newMessage,
         senderId: user.id,
         timestamp: new Date().toISOString(),
-        imageUrl: image ? URL.createObjectURL(image) : undefined,
+        files: image
+          ? [{ url: URL.createObjectURL(image), fileType: "IMAGE" }]
+          : [],
       };
       setMessages([...messages, message]);
-      setNewMessage(""); // 入力クリア
-      setImage(null); // 画像クリア
+      setNewMessage("");
+      setImage(null);
     }
   };
 
@@ -66,18 +91,7 @@ const Page = () => {
 
       <ScrollArea className="min-h-0 flex-grow overflow-auto">
         <div className="space-y-4 p-4">
-          {selectedUser &&
-            messages.map((message) => (
-              <ConversationMessage
-                key={message.id}
-                content={message.content}
-                senderId={message.senderId}
-                imageUrl={message.imageUrl}
-                timestamp={new Date(message.timestamp)}
-                isOwnMessage={message.senderId === user.id}
-                selectedUser={selectedUser}
-              />
-            ))}
+          {renderMessagesWithDateSeparators()}
         </div>
       </ScrollArea>
 

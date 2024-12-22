@@ -1,4 +1,4 @@
-import { PrismaClient, type Prisma, type Conversation } from "@prisma/client";
+import { PrismaClient, type Conversation } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -49,6 +49,7 @@ export const conversationHandler = {
       if (participantIds.length === 0) {
         throw new Error("Participant IDs cannot be empty");
       }
+
       const conversations = await prisma.conversation.findMany({
         where: {
           AND: [
@@ -56,8 +57,9 @@ export const conversationHandler = {
             { participants: { every: { id: { in: participantIds } } } },
           ],
         },
-        include: { participants: true, messages: true },
+        include: { participants: true },
       });
+
       return (
         conversations.find(
           (conversation) =>
@@ -73,6 +75,7 @@ export const conversationHandler = {
     }
   },
 
+  // 新しい会話を作成
   createConversation: async ({
     name,
     participantIds,
@@ -84,14 +87,24 @@ export const conversationHandler = {
       if (participantIds.length === 0) {
         throw new Error("Participant IDs cannot be empty");
       }
-      const existingConversation =
-        await conversationHandler.getConversationByParticipants(participantIds);
+
+      const existingConversation = await prisma.conversation.findFirst({
+        where: {
+          participants: {
+            every: { id: participantIds[0] },
+          },
+        },
+        include: { participants: true },
+      });
+
       if (existingConversation) {
         return existingConversation;
       }
+
       return await prisma.conversation.create({
         data: {
           name,
+          isGroup: participantIds.length > 1, // isGroup を設定
           participants: {
             connect: participantIds.map((id) => ({ id })),
           },
@@ -104,51 +117,6 @@ export const conversationHandler = {
         error,
       );
       throw new Error("Could not create conversation");
-    }
-  },
-
-  updateConversation: async (
-    id: string,
-    updates: { name?: string; participantIds?: string[] },
-  ): Promise<Conversation> => {
-    try {
-      const data: Prisma.ConversationUpdateInput = {};
-      if (updates.name) {
-        data.name = updates.name;
-      }
-      if (updates.participantIds) {
-        if (updates.participantIds.length === 0) {
-          throw new Error("Participant IDs cannot be empty");
-        }
-        data.participants = {
-          set: updates.participantIds.map((id) => ({ id })),
-        };
-      }
-      return await prisma.conversation.update({
-        where: { id },
-        data,
-        include: { participants: true },
-      });
-    } catch (error) {
-      console.error(
-        `[conversationHandler] - updateConversation Error (ID: ${id}):`,
-        error,
-      );
-      throw new Error("Could not update conversation");
-    }
-  },
-
-  deleteConversation: async (id: string): Promise<Conversation> => {
-    try {
-      return await prisma.conversation.delete({
-        where: { id },
-      });
-    } catch (error) {
-      console.error(
-        `[conversationHandler] - deleteConversation Error (ID: ${id}):`,
-        error,
-      );
-      throw new Error("Could not delete conversation");
     }
   },
 };
