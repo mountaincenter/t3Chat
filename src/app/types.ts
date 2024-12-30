@@ -1,3 +1,5 @@
+import type { Prisma } from "@prisma/client";
+
 import type {
   User,
   File,
@@ -63,6 +65,14 @@ export interface NewMessageEvent {
     fileType: FileType;
   }[];
 }
+
+export type MessageWithFilesAndSender = Prisma.MessageGetPayload<{
+  include: {
+    files: true; // ファイルの情報を含める
+    sender: true; // メッセージ送信者を含める
+    readBy: true; // 読んだユーザーを含める
+  };
+}>;
 
 // =============================
 // 会話関連の型

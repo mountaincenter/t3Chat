@@ -7,11 +7,9 @@ import {
   SidebarGroup,
   SidebarGroupContent,
 } from "@/components/ui/sidebar";
-
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-
 import { useUserMutation } from "@/app/hooks/useUserMutation";
 import { useConversationMutation } from "@/app/hooks/useConversationMutaion";
 import { useChatStore } from "@/store/useChatStore";
@@ -29,16 +27,21 @@ interface ChatSecondSidebarProps {
 }
 
 const ChatSecondSidebar: React.FC<ChatSecondSidebarProps> = ({ pathname }) => {
-  const { users } = useUserMutation();
-  const { createUserConversation } = useConversationMutation();
-  const { selectedUser, setSelectedUser } = useChatStore();
+  const { user: currentUser, users } = useUserMutation();
+  const { createOrGetConversation } = useConversationMutation();
+  const { selectedUser, setSelectedUser, setConversationId } = useChatStore();
 
   const handleUserSelect = async (user: UserWithDetails) => {
     try {
       setSelectedUser(user);
-      await createUserConversation(user.id); // TRPCを使用してconversationIdを生成
+      if (!currentUser) return null;
+      const conversation = await createOrGetConversation({
+        participantIds: [user.id, currentUser.id],
+      });
+      setConversationId(conversation.id); // Zustand に保存
+      console.log("Conversation created or retrieved:", conversation);
     } catch (error) {
-      console.error("Failed to create conversation", error);
+      console.error("Failed to create or get conversation:", error);
     }
   };
 

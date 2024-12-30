@@ -6,17 +6,13 @@ import { useState, useEffect } from "react";
 import ConversationHeader from "./ConversationHeader";
 import ConversationFooter from "./ConversationFooter";
 import ConversationMessage from "./ConversationMessage";
-import { getRealtimeMessages } from "./data";
 import { useChatStore } from "@/store/useChatStore";
 import { formatDate } from "@/lib/utils"; // フォーマット関数をインポート
-import type { Message } from "./data";
 
 const Page = () => {
   const { user, users } = useUserMutation();
   const { selectedUser } = useChatStore();
 
-  const [newMessage, setNewMessage] = useState("");
-  const [image, setImage] = useState<File | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
 
   useEffect(() => {
@@ -32,7 +28,7 @@ const Page = () => {
   const renderMessagesWithDateSeparators = () => {
     let lastDate: string | null = null;
 
-    return messages.map((message, index) => {
+    return messages.map((message) => {
       const messageDate = new Date(message.timestamp);
       const formattedDate = formatDate(messageDate);
 
@@ -59,32 +55,6 @@ const Page = () => {
     });
   };
 
-  // メッセージ送信処理
-  const handleSendMessage = () => {
-    if (newMessage.trim() || image) {
-      const message = {
-        id: String(messages.length + 1),
-        content: newMessage,
-        senderId: user.id,
-        timestamp: new Date().toISOString(),
-        files: image
-          ? [{ url: URL.createObjectURL(image), fileType: "IMAGE" }]
-          : [],
-      };
-      setMessages([...messages, message]);
-      setNewMessage("");
-      setImage(null);
-    }
-  };
-
-  // ファイル選択処理
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setImage(file);
-    }
-  };
-
   return (
     <div className="flex h-[calc(100vh-60px)] w-full flex-col">
       <ConversationHeader username={selectedUser?.name ?? "ユーザー名"} />
@@ -95,12 +65,7 @@ const Page = () => {
         </div>
       </ScrollArea>
 
-      <ConversationFooter
-        message={newMessage}
-        onMessageChange={setNewMessage}
-        onSendMessage={handleSendMessage}
-        onFileChange={handleFileChange}
-      />
+      <ConversationFooter />
     </div>
   );
 };

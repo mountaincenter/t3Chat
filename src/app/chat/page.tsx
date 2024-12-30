@@ -1,14 +1,27 @@
 "use client";
-import React from "react";
-import UserConversationArea from "../_components/Conversation/UserConversationArea";
-import { useUserMutation } from "../hooks/useUserMutation";
-import type { UserWithDetails } from "../types";
 
+import React from "react";
+import { useUserMutation } from "../hooks/useUserMutation";
 import { useChatStore } from "@/store/useChatStore";
+import { useMessageMutation } from "../hooks/useMessageMutation";
+import ConversationHeader from "../users/ConversationHeader";
+import ConversationFooter, {
+  type ConversationFooterProps,
+} from "../users/ConversationFooter";
+import MessageList from "../users/MessageList";
 
 const Page = () => {
   const { user } = useUserMutation();
-  const { selectedUser, conversationId } = useChatStore();
+  const { conversationId, selectedUser } = useChatStore();
+  const { messages, refetch } = useMessageMutation(conversationId);
+
+  // 新しいメッセージをロードする処理
+  const handleLoadMoreMessages = async () => {
+    if (!conversationId) return;
+
+    console.log("Loading more messages...");
+    await refetch(); // メッセージを再取得する
+  };
 
   if (!user) {
     return (
@@ -18,22 +31,27 @@ const Page = () => {
     );
   }
 
-  return (
-    <div className="flex h-screen w-full">
-      <div className="p-4">
-        {selectedUser ? (
-          <UserConversationArea
-            conversationId={conversationId}
-            user={user as UserWithDetails} // 型を明示的に指定
-          />
-        ) : (
-          <div className="flex h-full items-center justify-center">
-            <p className="text-muted-foreground">
-              Select a user to start a conversation
-            </p>
-          </div>
-        )}
+  // selectedUser が選択されていない場合
+  if (!selectedUser) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center">
+        <p className="text-muted-foreground">
+          Please select a user to start a conversation.
+        </p>
       </div>
+    );
+  }
+
+  return (
+    <div className="flex h-[calc(100vh-60px)] w-full flex-col">
+      <ConversationHeader username={selectedUser.name ?? "ユーザー名"} />
+      <MessageList
+        messages={messages ?? []}
+        onLoadMore={handleLoadMoreMessages}
+      />
+      <ConversationFooter
+        refetchMessages={refetch as ConversationFooterProps["refetchMessages"]}
+      />
     </div>
   );
 };

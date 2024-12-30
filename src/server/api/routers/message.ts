@@ -1,5 +1,6 @@
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { messageHandler } from "../handlers/messageHandler";
+import { triggerEvent } from "@/server/service/pusher";
 import { z } from "zod";
 
 const fileSchema = z.object({
@@ -21,12 +22,20 @@ export const messageRouter = createTRPCRouter({
   create: protectedProcedure
     .input(messageCreateSchema)
     .mutation(async ({ ctx, input }) => {
-      return await messageHandler.createMessage({
+      // ここでログを追加して、サーバー側のPusher動作を確認
+      console.log("Creating message for conversation:", input.conversationId);
+
+      const newMessage = await messageHandler.createMessage({
         content: input.content ?? "",
         conversationId: input.conversationId,
         senderId: ctx.session.user.id,
         files: input.files,
       });
+
+      console.log("New message created:", newMessage); // ログを追加
+      const channel = `message-channel-${input.conversationId}`;
+      await triggerEvent(channel, "new-message", newMessage);
+      return newMessage;
     }),
 
   update: protectedProcedure
