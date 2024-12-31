@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import {
   Sidebar,
   SidebarHeader,
-  SidebarInput,
   SidebarContent,
   SidebarFooter,
   SidebarGroup,

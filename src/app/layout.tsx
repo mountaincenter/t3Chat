@@ -6,9 +6,6 @@ import { Toaster } from "@/components/ui/toaster";
 import SidebarLayout from "./layouts/SidebarLayout";
 import AppProviders from "@/components/providers/AppProviders";
 import AppSidebar from "@/app/_components/Sidebar/AppSidebar";
-import getServerSession from "next-auth";
-import { authConfig } from "@/server/auth/config";
-import { redirect } from "next/navigation";
 
 const notoSansJP = Noto_Sans_JP({ weight: "400", subsets: ["latin"] });
 
@@ -21,16 +18,6 @@ export const metadata: Metadata = {
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  // 認証セッションを取得
-  const session = await getServerSession(authConfig);
-
-  // セッションがない場合はサインインページにリダイレクト
-  if (!session) {
-    redirect("/api/auth/signin");
-    return null; // リダイレクト後は何も表示しない
-  }
-
-  // Cookie から Sidebar の状態を取得
   const cookieStore = await cookies();
   const defaultOpen = cookieStore.get("sidebar:state")?.value === "true";
 
