@@ -3,7 +3,6 @@ import { Noto_Sans_JP } from "next/font/google";
 import { type Metadata } from "next";
 import { cookies } from "next/headers";
 import { Toaster } from "@/components/ui/toaster";
-
 import SidebarLayout from "./layouts/SidebarLayout";
 import AppProviders from "@/components/providers/AppProviders";
 import AppSidebar from "@/app/_components/Sidebar/AppSidebar";

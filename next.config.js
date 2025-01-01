@@ -5,6 +5,10 @@
 import "./src/env.js";
 
 /** @type {import("next").NextConfig} */
-const config = {};
+const config = {
+  images: {
+    domains: ["via.placeholder.com", "picsum.photos"], // 画像のホスト名を追加
+  },
+};
 
 export default config;

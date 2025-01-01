@@ -8,6 +8,12 @@ export const userHandler = {
     try {
       return await prisma.user.findUnique({
         where: { id: userId },
+        select: {
+          id: true,
+          name: true,
+          image: true,
+          role: true,
+        },
       });
     } catch (error) {
       console.error("Error fetch user:", error);
@@ -15,12 +21,15 @@ export const userHandler = {
     }
   },
 
-  // 自分以外のユーザーリストを取得
-  listUserExcludingSelf: async (userId: string) => {
+  // 自分を含む全てのユーザー情報を取得
+  listAllUsers: async () => {
     try {
       const users = await prisma.user.findMany({
-        where: {
-          id: { not: userId },
+        select: {
+          id: true,
+          name: true,
+          image: true,
+          role: true,
         },
       });
       return users;

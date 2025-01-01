@@ -1,57 +1,71 @@
 "use client";
-import React, { useState } from "react";
-import UserConversationArea from "../_components/Conversation/UserConversationArea";
+
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useUserMutation } from "../hooks/useUserMutation";
-import type { UserWithDetails } from "../types";
-import { useSession } from "next-auth/react";
-import UserList from "../_components/Lists/UserList";
+import { useState, useEffect } from "react";
+import ConversationHeader from "./ConversationHeader";
+import ConversationFooter from "./ConversationFooter";
+import ConversationMessage from "./ConversationMessage";
+import { useChatStore } from "@/store/useChatStore";
+import { formatDate } from "@/lib/utils"; // フォーマット関数をインポート
 
 const Page = () => {
-  const { data: session } = useSession();
-  const { users, user } = useUserMutation();
-  const [selectedUser, setSelectedUser] = useState<UserWithDetails | null>(
-    null,
-  );
-  const [conversationId, setConversationId] = useState<string>("");
+  const { user, users } = useUserMutation();
+  const { selectedUser } = useChatStore();
 
-  const handleSelectUser = (convId: string, user: UserWithDetails) => {
-    setSelectedUser(user);
-    setConversationId(convId);
+  const [messages, setMessages] = useState<Message[]>([]);
+
+  useEffect(() => {
+    if (user && selectedUser) {
+      const initialMessages = getRealtimeMessages(user.id, selectedUser.id);
+      setMessages(initialMessages);
+    }
+  }, [user, selectedUser]);
+
+  if (!user || !users) return;
+
+  // 日付区切りを追加してメッセージをレンダリング
+  const renderMessagesWithDateSeparators = () => {
+    let lastDate: string | null = null;
+
+    return messages.map((message) => {
+      const messageDate = new Date(message.timestamp);
+      const formattedDate = formatDate(messageDate);
+
+      const isNewDate = formattedDate !== lastDate;
+      lastDate = formattedDate;
+
+      return (
+        <div key={message.id}>
+          {isNewDate && (
+            <div className="my-4 text-center text-sm font-semibold text-gray-500">
+              {formattedDate}
+            </div>
+          )}
+          <ConversationMessage
+            content={message.content}
+            senderId={message.senderId}
+            files={message.files}
+            timestamp={messageDate}
+            isOwnMessage={message.senderId === user.id}
+            selectedUser={selectedUser!}
+          />
+        </div>
+      );
+    });
   };
 
-  if (!user) {
-    return (
-      <div className="flex h-screen w-full items-center justify-center">
-        <p className="text-muted-foreground">Loading user information...</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="flex h-screen w-full">
-      <div className="w-1/4 border-r py-4">
-        {users && (
-          <UserList
-            users={users}
-            onSelectUser={handleSelectUser}
-            session={session}
-          />
-        )}
-      </div>
-      <div className="w-3/4 p-4">
-        {selectedUser ? (
-          <UserConversationArea
-            conversationId={conversationId}
-            user={user as UserWithDetails} // 型を明示的に指定
-          />
-        ) : (
-          <div className="flex h-full items-center justify-center">
-            <p className="text-muted-foreground">
-              Select a user to start a conversation
-            </p>
-          </div>
-        )}
-      </div>
+    <div className="flex h-[calc(100vh-60px)] w-full flex-col">
+      <ConversationHeader username={selectedUser?.name ?? "ユーザー名"} />
+
+      <ScrollArea className="min-h-0 flex-grow overflow-auto">
+        <div className="space-y-4 p-4">
+          {renderMessagesWithDateSeparators()}
+        </div>
+      </ScrollArea>
+
+      <ConversationFooter />
     </div>
   );
 };

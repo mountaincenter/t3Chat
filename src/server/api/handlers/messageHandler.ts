@@ -3,24 +3,25 @@ import { PrismaClient, type FileType } from "@prisma/client";
 const prisma = new PrismaClient();
 
 export const messageHandler = {
-  // Fetch messages by conversation ID
+  // 会話IDでメッセージを取得
   getMessageByConversationId: async (conversationId: string) => {
     try {
       return await prisma.message.findMany({
         where: { conversationId },
-        include: { sender: true, files: true, readBy: true },
+        include: {
+          sender: true, // メッセージの送信者情報を含める
+          files: true, // ファイルも含める
+          readBy: true, // 既読ユーザー情報を含める
+        },
         orderBy: { timestamp: "asc" },
       });
     } catch (error) {
-      console.error(
-        `[messageHandler] - Error fetching messages (conversationId: ${conversationId})`,
-        error,
-      );
-      throw new Error("Unable to fetch messages. Please try again later.");
+      console.error("Error fetching messages:", error);
+      throw new Error("Could not fetch messages");
     }
   },
 
-  // Create a new message
+  // メッセージの作成
   createMessage: async (messageData: {
     content: string;
     conversationId: string;
@@ -28,87 +29,84 @@ export const messageHandler = {
     files?: { url: string; fileType: FileType }[];
   }) => {
     try {
+      // 会話を取得して、1対1会話かグループ会話かを確認
       const conversation = await prisma.conversation.findUnique({
         where: { id: messageData.conversationId },
         include: { participants: true },
       });
 
-      if (!conversation) throw new Error("Conversation not found.");
+      if (!conversation) {
+        throw new Error("会話が見つかりませんでした");
+      }
 
-      return await prisma.message.create({
+      // メッセージの作成
+      const newMessage = await prisma.message.create({
         data: {
           content: messageData.content,
           sender: { connect: { id: messageData.senderId } },
           conversation: { connect: { id: messageData.conversationId } },
-          files: messageData.files
-            ? {
-                create: messageData.files.map((file) => ({
-                  url: file.url,
-                  fileType: file.fileType,
-                })),
-              }
-            : undefined,
+          files: {
+            create: messageData.files?.map((file) => ({
+              url: file.url,
+              fileType: file.fileType,
+            })),
+          },
         },
-        include: { files: true, sender: true },
+        include: {
+          files: true, // ファイルも含める
+          sender: true, // 送信者情報を含める
+        },
       });
+
+      return newMessage;
     } catch (error) {
-      console.error(`[messageHandler] - Error creating message:`, error);
-      throw new Error("Unable to create message. Please try again later.");
+      console.error("Error creating message:", error);
+      throw new Error("Could not create message");
     }
   },
 
-  // Mark a message as read
-  markMessageAsRead: async (messageId: string, userId: string) => {
-    try {
-      const isAlreadyRead = await prisma.message.findFirst({
-        where: { id: messageId, readBy: { some: { id: userId } } },
-      });
-
-      if (!isAlreadyRead) {
-        return await prisma.message.update({
-          where: { id: messageId },
-          data: { readBy: { connect: { id: userId } } },
-        });
-      }
-      return null;
-    } catch (error) {
-      console.error(
-        `[messageHandler] - Error marking message as read (messageId: ${messageId}, userId: ${userId}):`,
-        error,
-      );
-      throw new Error(
-        "Unable to mark message as read. Please try again later.",
-      );
-    }
-  },
-
-  // Update message content
+  // メッセージの更新
   updateMessage: async (id: string, content: string) => {
     try {
-      return await prisma.message.update({ where: { id }, data: { content } });
+      return await prisma.message.update({
+        where: { id },
+        data: { content },
+      });
     } catch (error) {
-      console.error(
-        `[messageHandler] - Error updating message (ID: ${id}):`,
-        error,
-      );
-      throw new Error("Unable to update message. Please try again later.");
+      console.error("Error updating message:", error);
+      throw new Error("Could not update message");
     }
   },
 
-  // Delete a message
+  // メッセージの削除
   deleteMessage: async (id: string) => {
     try {
-      return await prisma.message.delete({ where: { id } });
+      return await prisma.message.delete({
+        where: { id },
+      });
     } catch (error) {
-      console.error(
-        `[messageHandler] - Error deleting message (ID: ${id}):`,
-        error,
-      );
-      throw new Error("Unable to delete message. Please try again later.");
+      console.error("Error deleting message:", error);
+      throw new Error("Could not delete message");
+    }
+  },
+  // メッセージを既読としてマーク
+  markMessageAsRead: async (messageId: string, userId: string) => {
+    try {
+      return await prisma.message.update({
+        where: { id: messageId },
+        data: {
+          readBy: {
+            connect: { id: userId },
+          },
+        },
+      });
+    } catch (error) {
+      console.error("Error marking message as read:", error);
+      throw new Error("Could not mark message as read");
     }
   },
 
-  // Fetch conversation participant IDs
+  // 会話の参加者IDを取得
   getConversationParticipantIds: async (conversationId: string) => {
     try {
       const conversation = await prisma.conversation.findUnique({
@@ -116,47 +114,50 @@ export const messageHandler = {
         include: { participants: true },
       });
 
-      if (!conversation) throw new Error("Conversation not found.");
+      if (!conversation) {
+        throw new Error("会話が見つかりませんでした");
+      }
 
       return conversation.participants.map((participant) => participant.id);
     } catch (error) {
-      console.error(
-        `[messageHandler] - Error fetching participant IDs (conversationId: ${conversationId}):`,
-        error,
-      );
-      throw new Error(
-        "Unable to fetch participant IDs. Please try again later.",
-      );
+      console.error("Error fetching conversation participant IDs:", error);
+      throw new Error("Could not fetch conversation participant IDs");
     }
   },
 
-  // Fetch unread message counts by user ID
+  // 未読メッセージの数を取得
   getUnreadMessagesCount: async (userId: string) => {
     try {
       const conversations = await prisma.conversation.findMany({
-        where: { participants: { some: { id: userId } } },
+        where: {
+          participants: {
+            some: { id: userId },
+          },
+        },
         include: {
           messages: {
             where: {
-              readBy: { none: { id: userId } },
-              senderId: { not: userId },
+              readBy: {
+                none: { id: userId },
+              },
+              senderId: {
+                not: userId, // 自分が送信したメッセージは未読数にカウントしない
+              },
             },
           },
         },
       });
 
-      return conversations.map((conversation) => ({
+      // 会話ごとの未読数を返す
+      const unreadCounts = conversations.map((conversation) => ({
         conversationId: conversation.id,
         unreadCount: conversation.messages.length,
       }));
+
+      return unreadCounts;
     } catch (error) {
-      console.error(
-        `[messageHandler] - Error fetching unread messages count (userId: ${userId}):`,
-        error,
-      );
-      throw new Error(
-        "Unable to fetch unread message counts. Please try again later.",
-      );
+      console.error("Error fetching unread messages count:", error);
+      throw new Error("Could not fetch unread messages count");
     }
   },
 };

@@ -1,5 +1,6 @@
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { messageHandler } from "../handlers/messageHandler";
+import { triggerEvent } from "@/server/service/pusher";
 import { z } from "zod";
 
 const fileSchema = z.object({
@@ -14,102 +15,49 @@ const messageCreateSchema = z.object({
 });
 
 export const messageRouter = createTRPCRouter({
-  // メッセージを取得
   getByConversationId: protectedProcedure
     .input(z.string())
-    .query(async ({ input }) => {
-      try {
-        return await messageHandler.getMessageByConversationId(input);
-      } catch (error) {
-        console.error(`[messageRouter] - Error fetching messages:`, error);
-        throw new Error("Failed to fetch messages. Please try again.");
-      }
-    }),
+    .query(({ input }) => messageHandler.getMessageByConversationId(input)),
 
-  // メッセージを作成
   create: protectedProcedure
     .input(messageCreateSchema)
     .mutation(async ({ ctx, input }) => {
-      try {
-        return await messageHandler.createMessage({
-          content: input.content ?? "",
-          conversationId: input.conversationId,
-          senderId: ctx.session.user.id,
-          files: input.files,
-        });
-      } catch (error) {
-        console.error(`[messageRouter] - Error creating message:`, error);
-        throw new Error("Failed to create message. Please try again.");
-      }
+      // ここでログを追加して、サーバー側のPusher動作を確認
+      console.log("Creating message for conversation:", input.conversationId);
+
+      const newMessage = await messageHandler.createMessage({
+        content: input.content ?? "",
+        conversationId: input.conversationId,
+        senderId: ctx.session.user.id,
+        files: input.files,
+      });
+
+      console.log("New message created:", newMessage); // ログを追加
+      const channel = `message-channel-${input.conversationId}`;
+      await triggerEvent(channel, "new-message", newMessage);
+      return newMessage;
     }),
 
-  // メッセージを更新
   update: protectedProcedure
-    .input(
-      z.object({
-        messageId: z.string(),
-        content: z.string(),
-      }),
-    )
+    .input(z.object({ messageId: z.string(), content: z.string() }))
     .mutation(async ({ input }) => {
-      try {
-        return await messageHandler.updateMessage(
-          input.messageId,
-          input.content,
-        );
-      } catch (error) {
-        console.error(`[messageRouter] - Error updating message:`, error);
-        throw new Error("Failed to update message. Please try again.");
-      }
+      return await messageHandler.updateMessage(input.messageId, input.content);
     }),
 
-  // メッセージを削除
   delete: protectedProcedure.input(z.string()).mutation(async ({ input }) => {
-    try {
-      return await messageHandler.deleteMessage(input);
-    } catch (error) {
-      console.error(`[messageRouter] - Error deleting message:`, error);
-      throw new Error("Failed to delete message. Please try again.");
-    }
+    return await messageHandler.deleteMessage(input);
   }),
 
-  // メッセージを既読としてマーク
   markAsRead: protectedProcedure
-    .input(
-      z.object({
-        messageId: z.string(),
-        conversationId: z.string(),
-      }),
-    )
-    .mutation(async ({ ctx, input }) => {
-      try {
-        return await messageHandler.markMessageAsRead(
-          input.messageId,
-          ctx.session.user.id,
-        );
-      } catch (error) {
-        console.error(
-          `[messageRouter] - Error marking message as read:`,
-          error,
-        );
-        throw new Error("Failed to mark message as read. Please try again.");
-      }
+    .input(z.object({ messageId: z.string(), conversationId: z.string() }))
+    .mutation(({ ctx, input }) => {
+      return messageHandler.markMessageAsRead(
+        input.messageId,
+        ctx.session.user.id,
+      );
     }),
 
-  // 未読メッセージの数を取得
   getUnreadMessagesCount: protectedProcedure
-    .input(z.string()) // ユーザーIDを入力とする
-    .query(async ({ input: userId }) => {
-      try {
-        return await messageHandler.getUnreadMessagesCount(userId);
-      } catch (error) {
-        console.error(
-          `[messageRouter] - Error fetching unread messages count:`,
-          error,
-        );
-        throw new Error(
-          "Failed to fetch unread messages count. Please try again.",
-        );
-      }
-    }),
+    .input(z.string())
+    .query(({ input }) => messageHandler.getUnreadMessagesCount(input)),
 });
