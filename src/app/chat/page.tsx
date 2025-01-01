@@ -4,11 +4,11 @@ import React from "react";
 import { useUserMutation } from "../hooks/useUserMutation";
 import { useChatStore } from "@/store/useChatStore";
 import { useMessageMutation } from "../hooks/useMessageMutation";
-import ConversationHeader from "../users/ConversationHeader";
+import ConversationHeader from "./ConversationHeader";
 import ConversationFooter, {
   type ConversationFooterProps,
-} from "../users/ConversationFooter";
-import MessageList from "../users/MessageList";
+} from "./ConversationFooter";
+import MessageList from "./MessageList";
 
 const Page = () => {
   const { user } = useUserMutation();

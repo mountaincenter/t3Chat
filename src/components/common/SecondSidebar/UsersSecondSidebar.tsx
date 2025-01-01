@@ -14,7 +14,6 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 
 import { useUserMutation } from "@/app/hooks/useUserMutation";
-import { useConversationMutation } from "@/app/hooks/useConversationMutaion";
 
 import { useChatStore } from "@/store/useChatStore";
 import type { UserWithDetails } from "@/app/types";
@@ -36,13 +35,11 @@ const UsersSecondSidebar: React.FC<UsersSecondSidebarProps> = ({
   pathname,
 }) => {
   const { users } = useUserMutation();
-  const { createUserConversation } = useConversationMutation();
   const { selectedUser, setSelectedUser } = useChatStore();
 
-  const handleUserSelect = async (user: UserWithDetails) => {
+  const handleUserSelect = (user: UserWithDetails) => {
     try {
       setSelectedUser(user);
-      await createUserConversation(user.id); // TRPCを使用してconversationIdを生成
     } catch (error) {
       console.error("Failed to create conversation", error);
     }

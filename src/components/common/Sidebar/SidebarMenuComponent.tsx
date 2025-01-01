@@ -21,17 +21,7 @@ interface SidebarMenuComponentProps {
   item: ItemProps;
   activeItem: ItemProps | undefined;
   setActiveItem: (item: ItemProps | undefined) => void;
-  setMails: React.Dispatch<
-    React.SetStateAction<
-      {
-        name: string;
-        email: string;
-        subject: string;
-        date: string;
-        teaser: string;
-      }[]
-    >
-  >;
+
   setOpen: (open: boolean) => void;
 }
 
