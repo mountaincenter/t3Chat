@@ -1,10 +1,10 @@
 "use client";
 
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import type { User } from "@prisma/client";
+import type { UserWithDetails } from "@/app/types";
 
 interface AvatarComponentProps {
-  entity: User;
+  entity: UserWithDetails;
   className?: string;
 }
 

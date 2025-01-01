@@ -78,7 +78,7 @@ const displayPathname = (pathname: string): string => {
   const mapping: Record<string, string> = {
     "/files": "Files",
   };
-  return mapping[pathname] || pathname;
+  return mapping[pathname] ?? pathname;
 };
 
 interface FilesSecondSidebarProps {
@@ -89,7 +89,7 @@ const FilesSecondSidebar: React.FC<FilesSecondSidebarProps> = ({
   pathname,
 }) => {
   // `activeFiles` を useState で管理
-  const [activeFiles, setActiveFiles] = useState(files);
+  const [activeFiles] = useState(files);
 
   return (
     <Sidebar collapsible="none" className="hidden flex-1 md:flex">

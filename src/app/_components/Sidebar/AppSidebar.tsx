@@ -21,8 +21,7 @@ import SecondSidebar from "@/components/common/SecondSidebar/SecondSidebar";
 
 const AppSidebar: React.FC = () => {
   const [activeItem, setActiveItem] = useState(data.navMain[0]);
-  const [mails, setMails] = useState(data.mails);
-  const [isOpen, setOpen] = useState(false);
+  const [, setOpen] = useState(false);
 
   return (
     <Sidebar
@@ -60,7 +59,6 @@ const AppSidebar: React.FC = () => {
                     item={item}
                     activeItem={activeItem}
                     setActiveItem={setActiveItem}
-                    setMails={setMails}
                     setOpen={setOpen}
                   />
                 ))}
@@ -72,7 +70,7 @@ const AppSidebar: React.FC = () => {
           <NavUser />
         </SidebarFooter>
       </Sidebar>
-      <SecondSidebar mails={mails} activeItem={activeItem} />
+      <SecondSidebar activeItem={activeItem} />
     </Sidebar>
   );
 };

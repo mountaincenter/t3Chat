@@ -22,7 +22,6 @@ const AvatarItem: React.FC<AvatarListItemProps> = ({
   user,
   subText,
   rightIcon,
-  onClick,
   className = "",
   subTextClassName = "",
   isMobile,
