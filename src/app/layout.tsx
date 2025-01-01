@@ -1,9 +1,13 @@
 import "@/styles/globals.css";
-
-import { GeistSans } from "geist/font/sans";
+import { Noto_Sans_JP } from "next/font/google";
 import { type Metadata } from "next";
+import { cookies } from "next/headers";
+import { Toaster } from "@/components/ui/toaster";
+import SidebarLayout from "./layouts/SidebarLayout";
+import AppProviders from "@/components/providers/AppProviders";
+import AppSidebar from "@/app/_components/Sidebar/AppSidebar";
 
-import { TRPCReactProvider } from "@/trpc/react";
+const notoSansJP = Noto_Sans_JP({ weight: "400", subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Create T3 App",
@@ -11,13 +15,21 @@ export const metadata: Metadata = {
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const cookieStore = await cookies();
+  const defaultOpen = cookieStore.get("sidebar:state")?.value === "true";
+
   return (
-    <html lang="en" className={`${GeistSans.variable}`}>
-      <body>
-        <TRPCReactProvider>{children}</TRPCReactProvider>
+    <html lang="en" suppressHydrationWarning>
+      <body className={notoSansJP.className}>
+        <AppProviders>
+          <SidebarLayout defaultOpen={defaultOpen} sidebar={<AppSidebar />}>
+            {children}
+            <Toaster />
+          </SidebarLayout>
+        </AppProviders>
       </body>
     </html>
   );
