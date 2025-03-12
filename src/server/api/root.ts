@@ -15,7 +15,7 @@ export const appRouter = createTRPCRouter({
   user: userRouter,
   conversation: conversationRouter,
   message: messageRouter,
-  uploadRouter: uploadRouter,
+  upload: uploadRouter,
 });
 
 // export type definition of API

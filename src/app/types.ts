@@ -74,6 +74,11 @@ export type MessageWithFilesAndSender = Prisma.MessageGetPayload<{
   };
 }>;
 
+export interface FileWithUrl extends File {
+  url: string;
+  fileType: FileType;
+}
+
 // =============================
 // 会話関連の型
 // =============================

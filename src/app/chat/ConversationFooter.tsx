@@ -8,6 +8,7 @@ import { useMessageMutation } from "@/app/hooks/useMessageMutation";
 import { useChatStore } from "@/store/useChatStore";
 import type { MessageWithFilesAndSender } from "../types";
 import type { RefetchOptions, QueryObserverResult } from "react-query";
+import { api } from "@/trpc/react";
 
 export interface ConversationFooterProps {
   refetchMessages: (
@@ -23,12 +24,39 @@ const ConversationFooter: React.FC<ConversationFooterProps> = ({
   const { data: session } = useSession(); // セッション情報を取得
 
   const [message, setMessage] = useState(""); // 入力中のメッセージを管理
+  const [selectedFile, setSelectedFile] = useState<File | null>(null); // 選択されたファイル
+
+  const uploadFileMutation = api.upload.uploadFile.useMutation(); // ファイルアップロード用のtRPCミューテーション
 
   // メッセージ送信処理
   const handleSendMessage = async () => {
-    if (!message.trim() || !session?.user?.id) return; // 空メッセージ送信防止
-    void createMessage({ content: message, senderId: session.user.id });
+    if (!message.trim() && !selectedFile) return; // 空メッセージまたはファイルが選択されていない場合は送信しない
+
+    let fileUrl = "";
+
+    if (selectedFile) {
+      const formData = new FormData();
+      formData.append("file", selectedFile);
+      try {
+        const response = await uploadFileMutation.mutateAsync({
+          originalFilename: selectedFile.name,
+          filepath: selectedFile.name, // 仮の値
+        });
+        fileUrl = response.url;
+      } catch (error) {
+        console.error("File upload failed:", error);
+        return;
+      }
+    }
+
+    void createMessage({
+      content: message,
+      senderId: session?.user?.id ?? "",
+      files: fileUrl ? [{ url: fileUrl, fileType: "IMAGE" }] : undefined,
+    });
+
     setMessage(""); // 入力欄をクリア
+    setSelectedFile(null); // ファイル選択をリセット
 
     try {
       await refetchMessages(); // メッセージを再取得
@@ -41,10 +69,7 @@ const ConversationFooter: React.FC<ConversationFooterProps> = ({
   // ファイル選択処理
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      console.log("Selected file:", file.name);
-      // 必要に応じてファイルアップロード処理を実装
-    }
+    if (file) setSelectedFile(file);
   };
 
   return (

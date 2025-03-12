@@ -7,7 +7,12 @@ import "./src/env.js";
 /** @type {import("next").NextConfig} */
 const config = {
   images: {
-    domains: ["via.placeholder.com", "picsum.photos"], // 画像のホスト名を追加
+    domains: [
+      "via.placeholder.com",
+      "picsum.photos",
+      "t3chat-development.s3.ap-northeast-1.amazonaws.com",
+      "wwimihupizgnfgelcxff.supabase.co",
+    ], // 画像のホスト名を追加
   },
 };
 

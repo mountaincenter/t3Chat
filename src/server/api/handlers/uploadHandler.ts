@@ -1,4 +1,5 @@
 import fs from "fs/promises";
+import path from "path";
 import { supabase } from "@/lib/supabaseClient";
 import { generateTimestamp } from "@/lib/utils";
 import { put } from "@vercel/blob";
@@ -6,7 +7,7 @@ import { put } from "@vercel/blob";
 // 新しい型を定義
 interface UploadFile {
   originalFilename: string;
-  filepath: string;
+  fileBuffer: Uint8Array; // Uint8Array 型を使用
 }
 
 // ファイルアップロード処理
@@ -19,14 +20,15 @@ export const uploadFile = async (
 
   if (environment === "development") {
     // ローカル開発環境では public/uploads ディレクトリに保存
-    const localPath = `./public/uploads/${fileName}`;
-    await fs.copyFile(file.filepath, localPath);
+    const localPath = path.join(process.cwd(), "public/uploads", fileName);
+    await fs.mkdir(path.dirname(localPath), { recursive: true });
+    await fs.writeFile(localPath, file.fileBuffer); // Uint8Array を保存
     return `/uploads/${fileName}`;
   } else if (environment === "preview") {
     // プレビュー環境では Supabase Storage を使用
     const { error } = await supabase.storage
       .from("uploads")
-      .upload(`images/${fileName}`, file.filepath, {
+      .upload(`images/${fileName}`, new Blob([file.fileBuffer]), {
         cacheControl: "3600",
         upsert: false,
       });
@@ -47,7 +49,7 @@ export const uploadFile = async (
     return publicUrlData.publicUrl;
   } else if (environment === "production") {
     // 本番環境では Vercel Blob を使用
-    const blob = await put(fileName, await fs.readFile(file.filepath), {
+    const blob = await put(fileName, file.fileBuffer, {
       access: "public",
     });
 

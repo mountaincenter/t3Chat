@@ -8,7 +8,7 @@ export const uploadRouter = createTRPCRouter({
     .input(
       z.object({
         originalFilename: z.string(),
-        filepath: z.string(),
+        fileBuffer: z.instanceof(Buffer),
       }),
     )
     .mutation(async ({ input }) => {
@@ -16,7 +16,10 @@ export const uploadRouter = createTRPCRouter({
         (process.env.VERCEL_ENV as "development" | "preview" | "production") ||
         "development"; // 環境判定
       const uploadedUrl = await uploadFile(
-        { originalFilename: input.originalFilename, filepath: input.filepath },
+        {
+          originalFilename: input.originalFilename,
+          fileBuffer: input.fileBuffer,
+        },
         environment,
       );
 
